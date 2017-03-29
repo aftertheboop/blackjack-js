@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Blackjack</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <div id="game">
+            <h3>Blackjack</h3>
+            <p id="round">Round <span></span></p>
+            <div id="cards">Your Cards: <ul></ul></div>
+            <p id="total">Total: <span></span></p>
+            <button id="hit" onclick="Blackjack.hit('player')">Hit</button>
+            <button id="stay" onclick="Blackjack.stay('player')">Stay</button>
+            
+        </div>
+        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script type="text/javascript">
+            
+            var Blackjack = {
+                deck: [],
+                rounds: 1,
+                player: {
+                    name: 'you',
+                    cards: [],
+                    total: 0,
+                    aceTotal: 0
+                },
+                opponent: {
+                    name: 'the computer',
+                    cards: [],
+                    total: 0,
+                    aceTotal: 0                    
+                },
+                startGame: function () {
+                    var self = this;
+                    
+                    self.newDeck();
+                    
+                    self.startHand('player');
+                    self.startHand('opponent');
+                    
+                    self.render();
+                    
+                },
+                render: function () {
+                    
+                    var self = this;
+                    
+                    $('#round span').html(self.round);
+                    $('#cards ul').html('');
+                    
+                    var cardHtml = '';
+                    $.each(self['player'].cards, function (idx, card) {
+                        cardHtml += '<li>' + card.number + ' of ' + card.suit + '</li>';
+                    });
+                    
+                    $('#cards ul').html(cardHtml);
+                    
+                    if(self['player'].total == self['player'].aceTotal) {
+                        $('#total span').html(self['player'].total)
+                    } else {
+                        $('#total span').html(self['player'].total + '/' + self['player'].aceTotal);
+                    }
+                    
+                },
+                startHand: function(player) {
+                    console.log(player);
+                    
+                    var self = this;
+                    
+                    for(var i = 0; i <= 1; i++) {
+                        self[player].cards.push(self.drawCard());
+                    }
+                    
+                    self.handValue(player);
+                    
+                    if(player == 'player') {
+                        console.log(self[player]);
+                    }
+                    
+                },
+                handValue: function (player) {
+                    
+                    var self = this,
+                        total = 0,
+                        aceTotal = 0;
+                    
+                    $.each(self[player].cards, function (idx, card) {
+                                                
+                        if(card.number == 1) {
+                            
+                            total += 1;
+                            aceTotal += 11;
+                            
+                        } else {
+                            
+                            total += card.number;
+                            aceTotal += card.number;
+                            
+                        }
+        
+                    });
+                    
+                    self[player].total = total;
+                    self[player].aceTotal = aceTotal;
+                    
+                    if(total == aceTotal) {
+                        return total;
+                    } else {
+                        return total + ' / ' + aceTotal;
+                    }                    
+                },
+                hit: function (player) {
+                    
+                    var self = this,
+                        card = self.drawCard();
+                
+                    self[player].cards.push(card);
+                    
+                    self.handValue(player);
+                    
+                    self.render();
+                    
+                    
+                    
+                },
+                newDeck: function () {
+                    
+                    var suits = ['diamonds', 'clubs', 'hearts', 'spades'],
+                        self = this;
+                    
+                    $.each(suits, function (idx, val) {
+                        
+                        for(var i = 1; i <= 13; i++) {
+                            var card = {suit: val,
+                                        number: i};
+                                    
+                            self.deck.push(card);
+                        } 
+                    }); 
+                },
+                drawCard: function () {
+                    
+                    var self = this,
+                        random = Math.floor((Math.random() * 51) + 0),
+                        draw = self.deck[random];
+                    
+                    console.log(self.deck.length + ' ' + random);
+                    
+                    if(self.deck.length <= 0) {
+                        self.gameOver();
+                    }
+                        
+                    if(typeof draw !== 'undefined') {
+                        self.deck.splice(random, 1);
+                        return draw;
+                    } else {
+                        self.drawCard();
+                    }
+                },
+                gameOver: function () {
+                    console.log('Game Over');
+                    return false;
+                }
+            }
+            
+            
+            
+            Blackjack.startGame();
+            
+        </script>
+        
+        
+    </body>
+</html>
