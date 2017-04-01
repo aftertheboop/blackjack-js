@@ -130,6 +130,13 @@
                     
                     var suits = ['diamonds', 'clubs', 'hearts', 'spades'],
                         self = this;
+                
+                    // Recursive shuffle from http://stackoverflow.com/a/22654548
+                    function shuffle(a,b){
+                        return a.length==0?b:function(c){
+                            return shuffle(a,(b||[]).concat(c));
+                        }(a.splice(Math.floor(Math.random()*a.length),1));
+                    };
                     
                     $.each(suits, function (idx, val) {
                         
@@ -140,25 +147,20 @@
                             self.deck.push(card);
                         } 
                     }); 
+                    
+                    self.deck = shuffle(self.deck);
+                    
                 },
                 drawCard: function () {
                     
-                    var self = this,
-                        random = Math.floor((Math.random() * 51) + 0),
-                        draw = self.deck[random];
-                    
-                    console.log(self.deck.length + ' ' + random);
+                    var self = this;
                     
                     if(self.deck.length <= 0) {
                         self.gameOver();
-                    }
-                        
-                    if(typeof draw !== 'undefined') {
-                        self.deck.splice(random, 1);
-                        return draw;
                     } else {
-                        self.drawCard();
+                        return self.deck.pop();
                     }
+                    
                 },
                 gameOver: function () {
                     console.log('Game Over');
